@@ -1,0 +1,11 @@
+.chat {
+    display: flex;
+    flex-direction: row;
+    font-size:50px;
+    margin-top:40px;
+}
+.left-bar-chat p {
+    padding: 1px;
+    margin-top:1px;
+    margin-bottom:1px;
+}

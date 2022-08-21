@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    textarea {
+        width: 80vw;
+        height: 120px;
+        max-height: 180px;
+        resize: none;
+    }
+    form * {
+        margin:0;
+        padding: 0;
+    }
+    form {
+        display: flex;
+                position: absolute;
+        bottom: 0px;
+        flex-direction: row;
+
+    }
+
+    input[type='submit'] {
+        height: 129px;
+        width: 129px;
+    }
+
+
+</style>
+<body>
+<h1> {{ chat.name }}</h1>
+{% for message in messages %}
+    <p> {{ message.author__username }}: {{ message.text }}</p>
+{% endfor %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ message_form.as_p }}
+        <input type="submit" value="Send message">
+    </form>
+</body>
+</html>
