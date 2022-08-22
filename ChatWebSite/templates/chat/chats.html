@@ -11,17 +11,17 @@
   {% csrf_token %}
   {{ created_chat_form.as_p }}
   <input type="submit" value="Created Chat">
-
-  Chats:
-    {% for chat in user.user_chats.all %}
-    <div class="chat">
-        <img src="/media/vektrius/fb_icon_325x325.png" width="110px" height="110px" alt="">
-        <div class="left-bar-chat">
-                    <p>{{ chat.name }}</p>
-                    <p>Last Message</p>
-        </div>
-    </div>
-    {% endfor %}
 </form>
+
+Chats:
+{% for chat in user.user_chats.all %}
+<div class="chat" onclick="location.href = '{% url 'chat' chat.pk %}'">
+    <img src="/media/vektrius/fb_icon_325x325.png" width="110px" height="110px" alt="">
+    <div class="left-bar-chat">
+                <p>{{ chat.name }}</p>
+                <p>Last Message</p>
+    </div>
+</div>
+{% endfor %}
 </body>
 </html>

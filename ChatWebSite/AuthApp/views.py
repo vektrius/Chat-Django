@@ -1,8 +1,9 @@
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 
 # Create your views here.
 from django.views import View
@@ -12,9 +13,14 @@ from .forms import RegistrationForm, LoginForm
 def not_auth_or_redirect(func):
     def wrapper(self,request,*args,**kwargs):
         if request.user.is_authenticated:
-            return HttpResponse('You Login') #TODO Redirect to chats
+            return HttpResponseRedirect(reverse('chats'))
         return func(self,request,*args,**kwargs)
     return wrapper
+
+
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('registration'))
 
 class RegistrationView(View):
     @not_auth_or_redirect
@@ -32,8 +38,8 @@ class RegistrationView(View):
             username = registration_form.cleaned_data['username']
             password = registration_form.cleaned_data['password']
             user = User.objects.create_user(username=username,password=password)
-            login(request,user)
-            return HttpResponse("Succes") #TODO Redirect To Chat
+            login(request,user,backend='django.contrib.auth.backends.ModelBackend')
+            return HttpResponseRedirect(reverse('chats'))
 
         context = {
             'registration_form': registration_form
@@ -57,8 +63,8 @@ class LoginView(View):
             password = login_form.cleaned_data['password']
             user = authenticate(username=username,password=password)
             if user is not None:
-                login(request,user)
-                return HttpResponse('Succes') #TODO Redirect to chats
+                login(request,user,backend='django.contrib.auth.backends.ModelBackend')
+                return HttpResponseRedirect(reverse('chats'))
             else:
                 login_form.add_error(None,ValidationError('username or password not corrected'))
 

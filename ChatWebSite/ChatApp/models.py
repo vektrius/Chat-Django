@@ -17,5 +17,5 @@ class Messages(models.Model):
     author = models.ForeignKey(User,on_delete=models.CASCADE,verbose_name='Author user')
     chat = models.ForeignKey(Chat,on_delete=models.CASCADE,verbose_name='Chat',related_name='messages')
     text = models.TextField(verbose_name='Text message')
-
+    date_created = models.DateTimeField(auto_now=True, verbose_name='Date message')
 

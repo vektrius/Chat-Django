@@ -11,13 +11,15 @@
         max-height: 180px;
         resize: none;
     }
-    form * {
-        margin:0;
+
+    .send-message-form * {
+        margin: 0;
         padding: 0;
     }
-    form {
+
+    .send-message-form {
         display: flex;
-                position: absolute;
+        position: absolute;
         bottom: 0px;
         flex-direction: row;
 
@@ -32,13 +34,69 @@
 </style>
 <body>
 <h1> {{ chat.name }}</h1>
+<div id="messages">
 {% for message in messages %}
-    <p> {{ message.author__username }}: {{ message.text }}</p>
+    <p>{{ message.author__username }}: {{ message.text }}</p>
 {% endfor %}
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ message_form.as_p }}
-        <input type="submit" value="Send message">
-    </form>
+</div>
+
+
+{% if chat.author == user %}
+<form action="{% url 'add-user-to-chat' chat.pk %}" class="add-user-to-chat-form" method="post">
+    {% csrf_token %}
+    {{ add_user_to_chat_form.as_p }}
+    <input type="submit" value="Add user">
+
+</form>
+{% endif %}
+
+<div class="send-message-form">
+    {% csrf_token %}
+    {{ message_form.as_p }}
+    <input id="chat-message-send" type="submit" value="Send message">
+</div>
+
+<script>
+    const chat_id = {{ chat.id }};
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/chat/'
+        + chat_id
+        + '/'
+    );
+
+    chatSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        const messages = document.querySelector('#messages')
+        const author = data['author']
+        const message_text = data['message']
+        messages.innerHTML += `<p> ${author}:${message_text}</p>`
+    };
+
+    chatSocket.onclose = function (e) {
+        console.error('Chat socket closed');
+    };
+
+    document.querySelector('textarea').focus();
+    document.querySelector('#id_text').onkeyup = function (e) {
+        if (e.keyCode === 13) {  // enter, return
+            const input = document.querySelector('#id_text')
+            input.value = input.value.substring(0, input.value.length - 1);
+            document.querySelector('#chat-message-send').click();
+        }
+    };
+
+    document.querySelector('#chat-message-send').onclick = function (e) {
+        const message_input = document.querySelector('#id_text');
+        const message_text = message_input.value;
+        chatSocket.send(JSON.stringify({
+            'message': message_text,
+    }));
+        message_input.value = ''
+    };
+
+
+</script>
 </body>
 </html>
