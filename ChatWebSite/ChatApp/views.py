@@ -11,6 +11,7 @@ from guardian.shortcuts import assign_perm
 from .forms import CreatedChatForm, SendMessageForm, AddUserToChatForm
 from .models import Chat
 from ChatWebSite.settings import CHAT_VIEW_PERMISSION
+from .tasks import test_celery
 
 
 # Create your views here.
@@ -45,6 +46,7 @@ class ChatDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         response = super(ChatDetailView, self).get(request, *args, **kwargs)
         user = request.user
+        test_celery.delay()
         if not user.has_perm(CHAT_VIEW_PERMISSION, self.object):
             return HttpResponseForbidden('No access')
         return response
@@ -66,23 +68,9 @@ class ChatDetailView(DetailView):
 
         return context
 
-    # @staticmethod
-    # @require_http_methods(['POST'])
-    # def send_message_to_chat(request):
-    #     message_form = SendMessageForm(request.POST)
-    #
-    #     if message_form.is_valid():
-    #         message_form.save()
-    #
-    #     context = {
-    #         'message_form': message_form
-    #     }
-    #     chat_pk = message_form.cleaned_data['chat'].pk
-    #     return HttpResponseRedirect(reverse('chat', kwargs={'pk': chat_pk}))
-
     @staticmethod
     @require_http_methods(['POST'])
-    def add_user_to_chat(request,chat_id):
+    def add_user_to_chat(request,chat_id : int):
         add_user_to_chat_form = AddUserToChatForm(request.POST)
 
         if add_user_to_chat_form.is_valid():
@@ -93,4 +81,3 @@ class ChatDetailView(DetailView):
 
         print(add_user_to_chat_form.errors)
         return HttpResponseRedirect(reverse('chat', kwargs={'pk': chat_id}))
-# TODO На завтра добавить django-chanels и сделать чат

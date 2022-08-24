@@ -1,0 +1,25 @@
+services:
+  redis:
+    image: redis
+  chat_db:
+    container_name: chat_db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_PASSWORD=you_pass
+      - POSTGRES_USER=you_user
+    image: postgres
+    volumes:
+      - ./chat_postgres_db:/var/lib/postgresql/data/
+
+  chat_web_site:
+    build:
+      context: ./ChatWebSite
+      dockerfile: Dockerfile
+
+    ports:
+      - "8000:8000"
+    env_file:
+      - .db.env
+
+    
